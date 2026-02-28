@@ -1,6 +1,6 @@
 {
   "name": "slipverify",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "One SDK for verifying slip QR payloads in Thailand",
   "author": "Maythiwat Chomchuen <maythiwat.chom@gmail.com>",
   "license": "MIT",
