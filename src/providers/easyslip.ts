@@ -11,22 +11,23 @@ export function easyslip(config: EasySlipProviderConfig): Provider {
   return {
     name: 'easyslip',
     inquiry: async (payload: string): Promise<ProviderResult> => {
-      const url = `https://developer.easyslip.com/api/v1/verify?payload=${encodeURIComponent(payload)}`
-      const response = await fetch(url, {
-        method: 'GET',
+      const response = await fetch('https://api.easyslip.com/v2/verify/bank', {
+        method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
+        body: JSON.stringify({ payload }),
       })
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data: any = await response.json()
 
       if (!response.ok) {
-        if (data?.message === 'slip_not_found') {
+        if (data?.error?.code === 'SLIP_NOT_FOUND') {
           return {
             valid: false,
-            data: data,
+            data: data.error,
           }
         }
         throw new SlipVerifyError({
@@ -37,7 +38,7 @@ export function easyslip(config: EasySlipProviderConfig): Provider {
       }
 
       return {
-        valid: data?.status === 200,
+        valid: data?.success === true,
         data: data.data,
       }
     },
