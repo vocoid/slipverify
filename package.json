@@ -1,7 +1,7 @@
 {
   "name": "slipverify",
   "version": "0.1.0",
-  "description": "One SDK for verifying slip QR payloads in Thailand",
+  "description": "Unified SDK for verifying Thai bank & e-wallet transfer slip QR codes",
   "author": "Maythiwat Chomchuen <maythiwat.chom@gmail.com>",
   "license": "MIT",
   "keywords": [

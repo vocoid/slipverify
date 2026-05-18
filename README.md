@@ -1,6 +1,6 @@
 # Slip Verify SDK
 
-One SDK for verifying bank slip QR payloads in Thailand.
+Unified SDK for verifying Thai bank & e-wallet transfer slip QR codes
 
 ## Features
 
@@ -26,24 +26,24 @@ npm install slipverify
 
 **Bank Providers** (Bank Slip QR):
 
-| Provider | Credentials | Sandbox (via `env`) |
-|---|---|---|
-| `scb` | `apiKey`, `apiSecret` | ✅ |
-| `kbank` | `clientId`, `clientSecret` | ✅ |
+| Provider | Credentials                | Sandbox (via `env`) |
+| -------- | -------------------------- | ------------------- |
+| `scb`    | `apiKey`, `apiSecret`      | ✅                  |
+| `kbank`  | `clientId`, `clientSecret` | ✅                  |
 
 **3rd Party Providers** (Bank Slip QR):
 
-| Provider | Credentials |
-|---|---|
-| `rdcw` | `clientId`, `clientSecret` |
-| `slipok` | `branchId`, `apiKey` |
-| `thunder` | `apiKey` |
-| `easyslip` | `accessToken` |
+| Provider   | Credentials                |
+| ---------- | -------------------------- |
+| `rdcw`     | `clientId`, `clientSecret` |
+| `slipok`   | `branchId`, `apiKey`       |
+| `thunder`  | `apiKey`                   |
+| `easyslip` | `accessToken`              |
 
 **Non-Bank Providers:**
 
-| Provider | Credentials |
-|---|---|
+| Provider    | Credentials   |
+| ----------- | ------------- |
 | `truemoney` | `accessToken` |
 
 ## Usage
@@ -71,9 +71,9 @@ try {
   }
 } catch (error) {
   if (error instanceof SlipVerifyError) {
-    console.error(error.message)   // "kbank API error (HTTP 401)"
-    console.error(error.provider)  // "kbank"
-    console.error(error.response)  // { status, headers, body }
+    console.error(error.message) // "kbank API error (HTTP 401)"
+    console.error(error.provider) // "kbank"
+    console.error(error.response) // { status, headers, body }
   }
 }
 ```
@@ -137,9 +137,9 @@ try {
   const result = await inquiry({ provider, payload })
 } catch (error) {
   if (error instanceof SlipVerifyError) {
-    error.message   // "kbank API error (HTTP 401)"
-    error.provider  // "kbank"
-    error.response  // { status: 401, headers: {...}, body: {...} }
+    error.message // "kbank API error (HTTP 401)"
+    error.provider // "kbank"
+    error.response // { status: 401, headers: {...}, body: {...} }
   }
 }
 ```
