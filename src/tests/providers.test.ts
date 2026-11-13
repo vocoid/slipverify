@@ -147,6 +147,45 @@ describe('rdcw provider', () => {
     expect((result.data as any).sender).toBe('John')
   })
 
+  it('routes TrueMoney payloads to the RDCW TrueMoney API', async () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          code: 0,
+          data: { transaction_id: '50000000000000' },
+        }),
+    })
+
+    const provider = rdcw({ clientId: 'id', clientSecret: 'sec' })
+    const result = await provider.inquiry('0049000201...')
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      'https://suba.rdcw.co.th/v2/truemoney',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: 'Basic aWQ6c2Vj',
+        },
+        body: JSON.stringify({ qr: '0049000201...' }),
+      },
+    )
+
+    expect(result.valid).toBe(true)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect((result.data as any).transaction_id).toBe('50000000000000')
+  })
+
+  it('rejects invalid payload before calling the API', async () => {
+    const provider = rdcw({ clientId: 'id', clientSecret: 'sec' })
+
+    await expect(provider.inquiry('invalid')).rejects.toThrow(
+      'Invalid payload provided to RDCW provider.',
+    )
+    expect(mockFetch).not.toHaveBeenCalled()
+  })
+
   it('throws on RDCW error responses', async () => {
     mockFetch.mockResolvedValueOnce({
       ok: false,

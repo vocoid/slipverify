@@ -1,9 +1,30 @@
 import { Provider, ProviderResult } from '../lib/types'
 import { SlipVerifyError } from '../lib/error'
+import { slipVerify, trueMoneySlipVerify } from 'promptparse/validate'
 
 export interface RdcwProviderConfig {
   clientId: string
   clientSecret: string
+}
+
+type RdcwSlipType = 'bank' | 'truemoney'
+
+const ENDPOINTS: Record<RdcwSlipType, string> = {
+  bank: 'https://suba.rdcw.co.th/v2/inquiry',
+  truemoney: 'https://suba.rdcw.co.th/v2/truemoney',
+}
+
+/**
+ * detect slip locally to avoid hammering the api
+ */
+function detectSlipType(payload: string): RdcwSlipType {
+  if (slipVerify(payload)) return 'bank'
+  if (trueMoneySlipVerify(payload)) return 'truemoney'
+
+  throw new SlipVerifyError({
+    message: 'Invalid payload provided to RDCW provider.',
+    provider: 'rdcw',
+  })
 }
 
 export function rdcw(config: RdcwProviderConfig): Provider {
@@ -12,15 +33,19 @@ export function rdcw(config: RdcwProviderConfig): Provider {
   return {
     name: 'rdcw',
     inquiry: async (payload: string): Promise<ProviderResult> => {
+      const type = detectSlipType(payload)
+
       const credentials = btoa(`${clientId}:${clientSecret}`)
 
-      const response = await fetch('https://suba.rdcw.co.th/v2/inquiry', {
+      const response = await fetch(ENDPOINTS[type], {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Basic ${credentials}`,
         },
-        body: JSON.stringify({ payload }),
+        body: JSON.stringify(
+          type === 'truemoney' ? { qr: payload } : { payload },
+        ),
       })
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -31,8 +56,9 @@ export function rdcw(config: RdcwProviderConfig): Provider {
       }
 
       return {
-        valid: data.valid,
-        data: data.data || data,
+        // truemoney endpoint returns code 0 as valid
+        valid: type === 'truemoney' ? data?.code === 0 : data?.valid === true,
+        data: data?.data ?? data,
       }
     },
   }
